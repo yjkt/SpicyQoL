@@ -54,6 +54,7 @@ public class HotbarMenuListener implements Listener {
     @EventHandler
     public void onInventoryClick(InventoryClickEvent event) {
         if (!(event.getWhoClicked() instanceof Player player)) return;
+        if (!isMenuItemEnabled()) return; // slot 9 is a normal slot when the menu item is disabled
         if (isMenuItem(event.getCurrentItem()) || isMenuItem(event.getCursor()) || event.getHotbarButton() == MENU_SLOT) {
             event.setCancelled(true);
             return;
@@ -65,6 +66,7 @@ public class HotbarMenuListener implements Listener {
 
     @EventHandler
     public void onInventoryDrag(InventoryDragEvent event) {
+        if (!isMenuItemEnabled()) return;
         int menuRawSlot = event.getView().getTopInventory().getSize() + 27 + MENU_SLOT;
         if (isMenuItem(event.getOldCursor()) || event.getRawSlots().contains(menuRawSlot)) {
             event.setCancelled(true);
@@ -87,7 +89,7 @@ public class HotbarMenuListener implements Listener {
     }
 
     private void ensureMenuItem(Player player) {
-        if (!SpicyQoL.get().getConfig().getBoolean("menu-item.enabled", true)) {
+        if (!isMenuItemEnabled()) {
             removeMenuItems(player);
             return;
         }
@@ -126,6 +128,11 @@ public class HotbarMenuListener implements Listener {
             inventory.setItem(emptyStorageSlot, current);
         }
         inventory.setItem(MENU_SLOT, createMenuItem());
+    }
+
+    // Whether the hotbar menu compass is enabled in the config.
+    private boolean isMenuItemEnabled() {
+        return SpicyQoL.get().getConfig().getBoolean("menu-item.enabled", true);
     }
 
     // Removes any menu compass from the player's inventory (used when the
